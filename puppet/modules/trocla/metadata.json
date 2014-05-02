@@ -1,0 +1,30 @@
+{
+  "name": "duritong-trocla",
+  "author": "duritong",
+  "description": "Query/Use trocla (https://github.com/duritong/trocla) from puppet",
+  "license": "",
+  "project_page": "https://github.com/duritong/trocla",
+  "source": "https://github.com/duritong/puppet-trocla",
+  "summary": "",
+  "version": "0.0.3",
+  "checksums": {
+    "Modulefile": "2690b534fbfde73391809131ab181f85",
+    "README.md": "b93600f6f8d664755b3a5c79c9b3dbf3",
+    "lib/puppet/parser/functions/trocla.rb": "023137e3a0972f9a90653a5de5847c66",
+    "lib/puppet/parser/functions/trocla_get.rb": "dd5eeb5ef0eb4e09eac538f354024c77",
+    "lib/puppet/parser/functions/trocla_set.rb": "d73b596f3522f6f63599d6a16a863236",
+    "lib/puppet/util/trocla_helper.rb": "4429cabbd7e7274699ab0830be4467ab",
+    "manifests/config.pp": "85db4668fa04b9b5d69d3c3dea86e9a7",
+    "manifests/dependencies.pp": "74bf0547e87808688531a13a463e1aed",
+    "manifests/master/ree.pp": "112309638dec0585aafc30d9cf761bc3",
+    "manifests/master.pp": "79d7c3ea4783a0ace9b16ca246cde811",
+    "manifests/yaml.pp": "92e8625077e4cd2ecabaf86c9d56afef",
+    "templates/troclarc.yaml.erb": "5770bad071c9847f3f3da2d784c61e03"
+  },
+  "dependencies": [
+
+  ],
+  "types": [
+
+  ]
+}
