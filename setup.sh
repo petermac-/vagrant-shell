@@ -14,9 +14,13 @@ fi
 ####################################################################
 # Update, upgrade, & install some initial packages
 ####################################################################
-apt-get -qqy update
-apt-get -qqy upgrade
-apt-get install -qqy build-essential git unzip
+apt-get -y update
+apt-get -y upgrade
+apt-get install -y build-essential git unzip python-setuptools
+
+apt-add-repository ppa:rquillo/ansible
+apt-get -y update
+apt-get install ansible
 
 ####################################################################
 # Create USER
@@ -34,13 +38,23 @@ apt-get -y install mysql-server php5-mysql php5-fpm libssl-dev build-essential z
   # Restore php pool
   ####################################################################
   adduser --system --home /var/www --shell /bin/sh --no-create-home --group --disabled-login --gecos "" $php_pool_user
+  if [ ! -f /etc/php5/fpm/pool.d/www.conf ]; then
+    echo "www.conf file is missing"
+    exit 1
+  fi
   if [ ! -f /etc/php5/fpm/pool.d/www.conf.orig ]; then
     cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/www.conf.orig
   fi
   cp /tmp/restore/php/pool.d/www.conf /etc/php5/fpm/pool.d/www.conf
   cp /tmp/restore/php/pool.d/wwwte.conf /etc/php5/fpm/pool.d/wwwte.conf
   usermod -a -G $php_pool_user $user
-  service php5-fpm restart
+
+  if hash php5-fpm 2>/dev/null; then
+    service php5-fpm restart
+  else
+    echo "php5-fpm service not found, exiting..."
+    exit 1
+  fi
 
   ####################################################################
   # Create a log folder in /var/www
@@ -48,6 +62,7 @@ apt-get -y install mysql-server php5-mysql php5-fpm libssl-dev build-essential z
   mkdir -p /var/www/logs
   chown -R $php_pool_user:$php_pool_user /var/www/logs
 
+exit 100
 cd /usr/src
 # wget --no-check-certificate https://github.com/pagespeed/ngx_pagespeed/archive/master.zip
 wget --no-check-certificate https://github.com/pagespeed/ngx_pagespeed/archive/v1.7.30.4-beta.zip
@@ -80,6 +95,7 @@ make install
 # gem install passenger --no-ri --no-rdoc
 # passenger-install-nginx-module --nginx-source-dir=/usr/src/nginx-1.5.13 --extra-configure-flags="--add-module=/usr/src/ngx_pagespeed-master --with-zlib=/usr/src/zlib-1.2.8 --prefix=/var/www/nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --pid-path=/var/run/nginx.pid --error-log-path=/var/www/logs/nginx/error.log --http-log-path=/var/www/logs/nginx/access.log --user=wwwte-data --group=wwwte-data --with-pcre=/usr/src/pcre-8.35 --with-openssl-opt=no-krb5 --with-openssl=/usr/src/openssl-1.0.1g --with-http_ssl_module --with-http_spdy_module --with-http_gzip_static_module --with-http_stub_status_module --without-mail_pop3_module --without-mail_smtp_module --without-mail_imap_module"
 
+rm -rf /etc/nginx
 cp -R /tmp/restore/nginx/* /etc/nginx/
 
 if [ ! -f /etc/php5/fpm/php.ini.orig ]; then
@@ -90,7 +106,7 @@ if [ ! -f /etc/php5/fpm/php-fpm.conf.orig ]; then
   cp /etc/php5/fpm/php-fpm.conf /etc/php5/fpm/php-fpm.conf.orig
 fi
 cp /tmp/restore/php/php-fpm.conf /etc/php5/fpm/php-fpm.conf
-sed -i "s/listen = 127.0.0.1:9000/listen = /var/run/php5-fpm.sock/g" /etc/ssh/sshd_config
+sed -i 's/listen = 127.0.0.1:9000/listen = /var/run/php5-fpm.sock/g' /etc/ssh/sshd_config
 service php5-fpm restart
 
 cp /tmp/restore/etc/init.d/nginx /etc/init.d/nginx
