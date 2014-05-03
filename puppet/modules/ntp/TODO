@@ -1,1 +1,0 @@
-Use augeas to change the ntp.conf server values rather than delivering a new file
