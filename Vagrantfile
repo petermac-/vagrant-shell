@@ -6,10 +6,10 @@ ram      = '512'
 
 Vagrant.configure("2") do |config|
 
-  config.hostmanager.enabled = true
-  config.hostmanager.manage_host = true
-  config.hostmanager.ignore_private_ip = false
-  config.hostmanager.include_offline = true
+  # config.hostmanager.enabled = true
+  # config.hostmanager.manage_host = true
+  # config.hostmanager.ignore_private_ip = false
+  # config.hostmanager.include_offline = true
 
   config.vm.define "devbox" do |devbox|
 
@@ -28,14 +28,7 @@ Vagrant.configure("2") do |config|
       v.name = hostname
     end
 
-    devbox.vm.provision "ansible" do |ansible|
-      ansible.playbook          = "playbooks/playbook.yml"
-      # ansible.sudo              = true
-      # ansible.host_key_checking = false
-      # ansible.sudo_user
-    end
-
-    # devbox.vm.provision :shell, :path => "setup.sh"
+    devbox.vm.provision :shell, :path => "setup.sh"
   end
 
 end
