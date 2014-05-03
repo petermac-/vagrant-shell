@@ -1,0 +1,90 @@
+---
+- hosts: all
+
+  vars:
+    users_create_per_user_group: false
+    users_create_homedirs: true
+    users:
+    - username: peter
+      groups: ['adm','sudo']
+      uid: 500
+      shell: /bin/zsh
+      # pip install passlib
+      # python3 -c "from passlib.hash import sha512_crypt; print(sha512_crypt.encrypt('password'))"
+      password: '$6$rounds=100000$r2DvUWNVReVMgErI$thwYEluyYIicV8GG6BI8rfPnJgUBO7SWIp47Zz1gJ/ZtXYq1CrROUVdmstX8Qg2IouW.dnpPmeDvgRas5GlCY.'
+
+
+  # vars_files:
+  # - vars/web.yml
+
+  roles:
+  - mivok0.users
+  # - Ansibles.nginx
+
+  tasks:
+    # - action: shell whoami
+    #   register: whoami
+
+    - name: update apt cache
+      apt: update_cache=yes cache_valid_time=3600
+      sudo: yes
+
+    - name: upgrade the distro
+      apt: upgrade=yes
+      sudo: yes
+
+    - name: install packages sys
+      apt: pkg={{ item }} state=latest
+      sudo: yes
+      with_items:
+        - build-essential
+        - git
+        - git-core
+        - curl
+        - gnupg
+        - zip
+        - unzip
+        # - rsync
+        - wget
+        - unattended-upgrades
+        - python-setuptools
+        - zsh
+
+    - name: install zsh
+      remote_user: peter
+      sudo: no
+      chdir: /home/peter
+      shell: curl -L http://install.ohmyz.sh | sh
+      # shell: curl -L http://install.ohmyz.sh | ZSH=~/.dotfiles/zsh sh
+
+    # - name: forbid SSH root login
+    #   sudo: yes
+    #   lineinfile: destfile=/etc/ssh/sshd_config regexp="^PermitRootLogin" line="PermitRootLogin no" state=present
+    #   notify:
+    #     - restart ssh
+
+    # - name: configure nginx default site
+    #   copy: src=files/nginx-default dest=/etc/nginx/sites-available/default
+    #   sudo: yes
+    #   notify: restart nginx
+
+    # - name: ensure /srv/data/websites/ exists
+    #   file: path=/srv/data/websites state=directory recurse=yes owner=${whoami.stdout} group=www-data
+    #   sudo: yes
+
+    # - name: ensure /srv/data/websites/samplesite.internal.tld exists
+    #   file: path=/srv/data/websites/samplesite.internal.tld state=directory recurse=yes owner=${whoami.stdout} group=www-data
+    #   sudo: yes
+
+    # - name: ensure /srv/data/git/ exists
+    #   file: path=/srv/data/git state=directory recurse=yes owner=${whoami.stdout} group=${whoami.stdout}
+    #   sudo: yes
+
+  handlers:
+    # - name: restart nginx
+    #   sudo: yes
+    #   action: service name=nginx state=restarted enabled=yes
+
+    - name: restart ssh
+      sudo: yes
+      action: service name=ssh state=restarted enabled=yes
