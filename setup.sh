@@ -14,9 +14,15 @@ fi
 ####################################################################
 # Update, upgrade, & install some initial packages
 ####################################################################
-apt-get -y update
-apt-get -y upgrade
-apt-get install -y build-essential git unzip python-setuptools
+apt-get -qqy update
+apt-get -qy upgrade
+apt-get -qy dist-upgrade
+apt-get -qy autoremove
+
+# dpkg --configure -a
+# apt-get -fy install
+# apt-get -y update
+apt-get install -qy build-essential git unzip python-setuptools
 
 # apt-add-repository ppa:rquillo/ansible
 # apt-get -y update
@@ -34,7 +40,19 @@ fi
 # Build and install Nginx from source
 ####################################################################
 # libssl-dev for nginx compile
-apt-get -y install mysql-server php5-mysql php5-fpm libssl-dev build-essential zlib1g-dev libpcre3 libpcre3-dev
+# mysql install fails because of interactive prompt requesting root password
+dpkg -L mysql-server > /dev/null 2>&1
+if [ $? -eq 1 ]; then
+  debconf-set-selections <<< 'mysql-server mysql-server/root_password password root'
+  debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password root'
+  apt-get -qy install mysql-server
+fi
+
+# export DEBIAN_FRONTEND=noninteractive
+dpkg -L php5-mysql > /dev/null 2>&1
+if [ $? -eq 1 ]; then
+  apt-get -y install php5-mysql php5-fpm libssl-dev build-essential zlib1g-dev libpcre3 libpcre3-dev
+fi
 
   ####################################################################
   # Restore php pool
