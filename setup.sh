@@ -307,3 +307,13 @@ if [ ! -d /home/vagrant/.dotfiles ]; then
   cd .dotfiles
   sudo -u vagrant -H bash setup/bootstrap
 fi
+
+if [ ! -f /home/$user/.gitconfig ] || [ ! -f /home/$user/.zshrc ] || [ ! -f /home/$user/.gemrc ] || [ ! -f /home/$user/.gitignore ]; then
+  cd /home/$user/.dotfiles
+  sudo -u $user -H bash setup/bootstrap
+fi
+
+if [ ! -f /home/vagrant/.gitconfig ] || [ ! -f /home/vagrant/.zshrc ] || [ ! -f /home/vagrant/.gemrc ] || [ ! -f /home/vagrant/.gitignore ]; then
+  cd /home/vagrant/.dotfiles
+  sudo -u vagrant -H bash setup/bootstrap
+fi
