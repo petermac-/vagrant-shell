@@ -3,7 +3,7 @@
 ####################################################################
 # Vars
 ####################################################################
-. "/tmp/restore/setup_status"
+source "/tmp/restore/setup_status"
 
 user='peter'
 php_pool_user='wwwte-data'
