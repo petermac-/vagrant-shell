@@ -284,3 +284,26 @@ if [ $zsh_status -eq 0 ]; then
     sed -i -e 's@zsh_status=0@zsh_status=1@g' /tmp/restore/setup_status
   fi
 fi
+
+####################################################################
+# Dotfiles Setup
+####################################################################
+if [ ! -d /home/$user/.dotfiles ]; then
+  cd /home/$user
+  wget --no-check-certificate https://github.com/petermac-/dotfiles/archive/master.zip
+  unzip master.zip && rm -f master.zip
+  mv dotfiles-master .dotfiles
+  chown $user:adm .dotfiles
+  cd .dotfiles
+  sudo -u $user -H bash setup/bootstrap
+fi
+
+if [ ! -d /home/vagrant/.dotfiles ]; then
+  cd /home/vagrant
+  wget --no-check-certificate https://github.com/petermac-/dotfiles/archive/master.zip
+  unzip master.zip && rm -f master.zip
+  mv dotfiles-master .dotfiles
+  chown vagrant:vagrant .dotfiles
+  cd .dotfiles
+  sudo -u vagrant -H bash setup/bootstrap
+fi
