@@ -5,7 +5,7 @@ set -e
 ####################################################################
 # Vars
 ####################################################################
-source "/tmp/restore/setup_status"
+source "/vagrant/config"
 
 user='peter'
 php_pool_user='wwwte-data'
