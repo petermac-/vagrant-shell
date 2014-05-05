@@ -1,0 +1,14 @@
+####################################################################
+# 0 - not configured
+# 1 - configured
+####################################################################
+secureSharedMemory_status=1
+protect_su_status=1
+harden_sysctl_status=1
+nospoof_status=1
+zsh_status=1
+
+####################################################################
+# Platform (used to check for Cygwin)
+####################################################################
+PLATFORM=Linux
