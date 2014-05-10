@@ -1,9 +1,14 @@
+
+user='peter'
+user_password='$6$rounds=100000$r2DvUWNVReVMgErI$thwYEluyYIicV8GG6BI8rfPnJgUBO7SWIp47Zz1gJ/ZtXYq1CrROUVdmstX8Qg2IouW.dnpPmeDvgRas5GlCY.'
+dotfile_users_setup=('peter' 'vagrant')
+php_pool_user='wwwte-data'
+
+files_to_restore='/tmp/restore'
+
 ####################################################################
-# 0 - not configured
-# 1 - configured
+# 0 - do not install
+# 1 - install
 ####################################################################
-secureSharedMemory_status=1
-protect_su_status=1
-harden_sysctl_status=1
-nospoof_status=1
-zsh_status=1
+harden_sysctl=1
+activate_vhosts=('techexplored.com')

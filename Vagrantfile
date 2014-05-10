@@ -28,7 +28,11 @@ Vagrant.configure("2") do |config|
       v.name = hostname
     end
 
-    devbox.vm.provision :shell, :path => "setup.sh"
+    devbox.vm.provision :shell, inline: <<-eos
+    #!/bin/bash
+    cd /vagrant
+    sudo bash setup.sh
+    eos
   end
 
 end
