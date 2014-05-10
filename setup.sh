@@ -64,20 +64,11 @@ apt-get -qy upgrade
 apt-get -qy dist-upgrade
 apt-get -qy autoremove
 
-# dpkg --configure -a
-# apt-get -fy install
-# apt-get -y update
-
 apt-get install -qy build-essential git git-core curl wget zip unzip unattended-upgrades python-setuptools gnupg
-
-# apt-add-repository ppa:rquillo/ansible
-# apt-get -y update
-# apt-get install ansible
 
 ####################################################################
 # Create USER
 ####################################################################
-# adduser $user --ingroup adm
 if ! user_exists? $user; then
   useradd --create-home --shell /bin/bash --no-user-group --gid adm --groups sudo --uid 500 --password $user_password $user
 fi
