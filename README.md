@@ -27,7 +27,6 @@ vagrant up
 Features
 --------
 
-* - has adjustable settings in config
 - Runs initial server update, upgrade, & dist-upgrade
 - Installs some common dev packages
 - *Adds a new user
@@ -44,6 +43,8 @@ Features
 - Prevents IP spoofing by adding `nospoof on` to /etc/host.conf
 - Installs and changes default user shell to oh-my-zsh
 - Restores my dotfiles repo to the new user and vagrant user
+
+_* - has adjustable settings in config_
 
 To-Do
 -----
