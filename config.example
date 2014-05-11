@@ -29,7 +29,14 @@ files_to_restore='/tmp/restore'
 activate_vhosts=('techexplored.com')
 
 ####################################################################
-# 0 - do not install
-# 1 - install
+# 0 - do not apply
+# 1 - apply
 ####################################################################
 harden_sysctl=1
+dist_upgrade=1
+install_nginx=1
+create_swap=1
+secure_shared_memory=1
+protect_su=1
+install_zsh=1
+prevent_ip_spoofing=1
