@@ -29,12 +29,12 @@ Features
 
 - Runs initial server update, upgrade, & dist-upgrade
 - Installs some common dev packages
-- *Adds a new user
+- Adds a new user
 - Builds and installs Nginx from source
-  - *Installs MySQL with a root user & default password of `root`
+  - Installs MySQL with a root user & default password of `root`
   - Installs php5-fpm
-  - *Activates specified vhosts
-- *Adds a new php pool user
+  - Activates specified vhosts
+- Adds a new php pool user
 - Safe to provision any number of times
 - Creates a 1GB swap file
 - Secures shared memory
@@ -44,10 +44,28 @@ Features
 - Installs and changes default user shell to oh-my-zsh
 - Restores my dotfiles repo to the new user and vagrant user
 
-_* - has adjustable settings in config_
+### Nginx Configuration
+- `--add-module=/usr/src/ngx_pagespeed-1.7.30.4-beta`
+- `--with-zlib=/usr/src/zlib-1.2.8`
+- `--prefix=/var/www/nginx`
+- `--sbin-path=/usr/sbin/nginx`
+- `--conf-path=/etc/nginx/nginx.conf`
+- `--pid-path=/var/run/nginx.pid`
+- `--error-log-path=/var/www/logs/nginx/error.log`
+- `--http-log-path=/var/www/logs/nginx/access.log`
+- `--user=www-data`
+- `--group=www-data`
+- `--with-pcre=/usr/src/pcre-8.35`
+- `--with-openssl-opt=no-krb5`
+- `--with-openssl=/usr/src/openssl-1.0.1g`
+- `--with-http_ssl_module`
+- `--with-http_spdy_module`
+- `--with-http_gzip_static_module`
+- `--with-http_stub_status_module`
+- `--without-mail_pop3_module`
+- `--without-mail_smtp_module`
+- `--without-mail_imap_module`
 
 To-Do
 -----
-- add config options to opt out of some of the currently hard coded features
-- add more configurable settings
-- ...will add additional features as needed/requested
+- Will add additional features as needed/requested
