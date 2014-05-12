@@ -48,7 +48,7 @@ php_fpm_conf="$files_to_restore/php/php-fpm.conf"
 # Nginx config files to restore
 # All files in this directory and subdirectories will be copied to /etc/nginx/
 ####################################################################
-nginx_config_files="$files_to_restore/nginx/*"
+nginx_config_files="$files_to_restore/nginx/"
 
 ####################################################################
 # Nginx vhosts to activate
