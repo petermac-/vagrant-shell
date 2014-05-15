@@ -1,4 +1,3 @@
 .vagrant
 config
-www/logs
-www/nginx
+www
