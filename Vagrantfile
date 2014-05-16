@@ -7,7 +7,6 @@ Vagrant.configure("2") do |config|
   config.vm.define "devbox" do |devbox|
 
     devbox.vm.network :private_network, ip: guestip
-    devbox.vm.network :forwarded_port, guest: 80, host: 8900
 
     devbox.vm.synced_folder "www", "/var/www"
     devbox.vm.synced_folder "restore", "/tmp/restore"
