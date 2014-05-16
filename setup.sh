@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 ####################################################################
 # Vars
 ####################################################################
@@ -66,7 +64,7 @@ if [[ "$dist_upgrade" -eq 1 ]]; then
 fi
 apt-get -qy autoremove
 
-apt-get install -qy "$packages"
+apt-get install -qy $packages
 
 ####################################################################
 # Create USER
@@ -181,6 +179,10 @@ if [[ "$install_nginx" -eq 1 ]]; then
     cp "$files_to_restore/etc/init.d/nginx" /etc/init.d/nginx
     chmod 0755 /etc/init.d/nginx
 
+    if [[ ! -d /var/log/nginx ]]; then
+      mkdir /var/log/nginx
+    fi
+
     if [[ ! -f /var/log/nginx/static.log ]]; then
       touch /var/log/nginx/static.log
       chown "$php_pool_user":"$php_pool_user" /var/log/nginx/static.log
@@ -230,7 +232,7 @@ if [[ ! -z "$activate_vhosts" ]]; then
   fi
 
   for site in "${activate_vhosts[@]}"; do
-    if [[ ! -f "/etc/nginx/sites-enabled/$site" ]]; then
+    if [[ ! -h "/etc/nginx/sites-enabled/$site" ]]; then
       ln -s "/etc/nginx/sites-available/$site" "/etc/nginx/sites-enabled/$site"
       mkdir -p "/var/www/$site/public_html"
       chown -R "$php_pool_user":"$php_pool_user" /var/www/logs
@@ -312,7 +314,7 @@ fi
 # Install oh-my-zsh
 ####################################################################
 if [[ "$install_zsh" -eq 1 ]]; then
-  if [ ! package_installed? "zsh" ]; then
+  if ! package_installed? "zsh"; then
     apt-get -qy install zsh
   fi
 
@@ -323,9 +325,11 @@ if [[ "$install_zsh" -eq 1 ]]; then
         sudo -u "$duser" -H curl -L http://install.ohmyz.sh | sudo -u "$duser" -H sh
       fi
 
-      user_shell="$(sudo -u $duser -H echo $SHELL)"
+      duser_shell="$(sudo -u $duser -H echo $SHELL)"
       if [ "$duser_shell" != "/usr/bin/zsh" ]; then
-        sudo chsh "$duser" -s $(which zsh)
+        sed -i 's/auth       required   pam_shells.so/# auth       required   pam_shells.so/' /etc/pam.d/chsh
+        chsh "$duser" -s $(which zsh)
+        sed -i 's/# auth       required   pam_shells.so/auth       required   pam_shells.so/' /etc/pam.d/chsh
       fi
     done
   fi
@@ -357,7 +361,7 @@ if [[ "$restart_prompt" -eq 0 ]]; then
   echo "Updates pending... Restart the server to apply the updates."
   echo -n "Would you like to restart now? [y/n]: "
   read ans
-  while [[ "$ans" != "y" ]] && [[ "$ans" != "n"]]; do
+  while [[ "$ans" != "y" ]] && [[ "$ans" != "n" ]]; do
     echo "Invalid option: enter y to restart now, or n to manually restart later."
     read ans
   done
