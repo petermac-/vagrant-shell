@@ -162,7 +162,7 @@ if [[ "$install_nginx" -eq 1 ]]; then
     # gem install passenger --no-ri --no-rdoc
     # passenger-install-nginx-module --nginx-source-dir=/usr/src/nginx-1.5.13 --extra-configure-flags="--add-module=/usr/src/ngx_pagespeed-master --with-zlib=/usr/src/zlib-1.2.8 --prefix=/var/www/nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --pid-path=/var/run/nginx.pid --error-log-path=/var/www/logs/nginx/error.log --http-log-path=/var/www/logs/nginx/access.log --user=wwwte-data --group=wwwte-data --with-pcre=/usr/src/pcre-8.35 --with-openssl-opt=no-krb5 --with-openssl=/usr/src/openssl-1.0.1g --with-http_ssl_module --with-http_spdy_module --with-http_gzip_static_module --with-http_stub_status_module --without-mail_pop3_module --without-mail_smtp_module --without-mail_imap_module"
 
-    cp -R "$nginx_config_files" /etc/nginx/
+    cp -rb $nginx_config_files /etc/nginx/
 
     if [[ ! -f /etc/php5/fpm/php.ini.orig ]]; then
       cp /etc/php5/fpm/php.ini /etc/php5/fpm/php.ini.orig
