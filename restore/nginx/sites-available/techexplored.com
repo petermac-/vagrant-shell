@@ -12,14 +12,14 @@ server {
 
   # and redirect to the non-www host (declared below)
   # return 301 $scheme://techexplored.com$request_uri;
-  return 301 http://techexplored.com$request_uri;
+  return 301 http://192.168.50.200$request_uri;
 }
 
 server {
   listen 80;
 
   # listen on the www host
-  server_name techexplored.com;
+  server_name 192.168.50.200;
 
   access_log /var/www/logs/techexplored.com/access.log combined buffer=32k;
   error_log /var/www/logs/techexplored.com/error.log;
