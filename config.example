@@ -51,6 +51,36 @@ php_fpm_conf="$files_to_restore/php/php-fpm.conf"
 nginx_config_files="$files_to_restore/nginx/"
 
 ####################################################################
+# Nginx source component download links
+####################################################################
+nginx_pagespeed_dl="https://api.github.com/repos/pagespeed/ngx_pagespeed/tarball/master"
+nginx_psol_dl="https://dl.google.com/dl/page-speed/psol/1.8.31.2.tar.gz"
+nginx_zlib_dl="http://zlib.net/zlib128.zip"
+nginx_dl="https://api.github.com/repos/nginx/nginx/tarball/master"
+nginx_pcre_dl="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.35.tar.gz"
+nginx_openssl_dl="ftp://ftp.openssl.org/source/openssl-1.0.1g.tar.gz"
+
+####################################################################
+# Nginx configuration options
+####################################################################
+nginx_prefix="/var/www/nginx"
+nginx_sbin_path="/usr/sbin/nginx"
+nginx_conf_path="/etc/nginx/nginx.conf"
+nginx_pid_path="/var/run/nginx.pid"
+nginx_error_log_path="/var/www/logs/nginx/error.log"
+nginx_http_log_path="/var/www/logs/nginx/access.log"
+nginx_user="vagrant"
+nginx_group="vagrant"
+nginx_openssl_opts="no-krb5"
+nginx_modules="--with-http_ssl_module --with-http_spdy_module --with-http_gzip_static_module --with-http_stub_status_module --without-mail_pop3_module --without-mail_smtp_module --without-mail_imap_module"
+
+# Include the pagespeed module when configuring Nginx
+nginx_pagespeed_install=1
+
+# Download a fresh copy of zlib for use when compiling Nginx
+nginx_fresh_zlib=1
+
+####################################################################
 # Nginx vhosts to activate
 ####################################################################
 activate_vhosts=('techexplored.com')
