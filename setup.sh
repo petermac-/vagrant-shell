@@ -56,7 +56,7 @@ service_installed?() {
 # 3 - filename not found
 # passed in variable name $1 set equal to the first file name found
 get_fname_from_current_folder() {
-  filename=$(find . -maxdepth 1 -type f -name "*$1*")
+  filename=$(find . -maxdepth 1 -name "*$1*")
   filename=${filename:2}
 
   if [[ ! -z $filename ]]; then
@@ -190,48 +190,49 @@ if [[ "$install_nginx" -eq 1 ]]; then
     fi
 
     cd /usr/src
+    mkdir "nginx_build"
+    cd nginx_build
     if [[ "$nginx_pagespeed_install" -eq 1 ]]; then
       wget --no-check-certificate $nginx_pagespeed_dl
-      get_fname pagespeed $nginx_pagespeed_dl
-      tar -xzvf $pagespeed && rm -f $pagespeed
-      mv $pagespeed ngx_pagespeed
+      get_fname_from_current_folder master
+      tar -xzvf $master && rm -f $master
+      get_fname_from_current_folder ngx_pagespeed
+      mv $ngx_pagespeed "ngx_pagespeed"
 
-      cd ngx_pagespeed
+      cd "ngx_pagespeed"
       # http://modpagespeed.googlecode.com/svn/tags/
       wget --no-check-certificate $nginx_psol_dl
       get_fname psol $nginx_psol_dl
       tar -xzvf $psol && rm -f $psol # expands to psol/
       chown -R root:root psol
-      cd /usr/src
-
-      nginx_configure_params="--add-module=/usr/src/ngx_pagespeed"
+      cd /usr/src/nginx_build
+      nginx_configure_params="--add-module=/usr/src/nginx_build/ngx_pagespeed"
     fi
 
     if [[ "$nginx_fresh_zlib" -eq 1 ]]; then
       wget $nginx_zlib_dl
       get_fname zlib $nginx_zlib_dl
       unzip $zlib && rm -f $zlib
-
       get_fname_from_current_folder zlib
-      nginx_configure_params="$nginx_configure_params --with-zlib=/usr/src/$zlib"
+      nginx_configure_params="$nginx_configure_params --with-zlib=/usr/src/nginx_build/$zlib"
     fi
 
     wget --no-check-certificate $nginx_dl
-    get_fname nginx $nginx_dl
-    tar -xzvf $nginx && rm -f $nginx
+    get_fname_from_current_folder master
+    tar -xzvf $master && rm -f $master
 
     wget $nginx_pcre_dl
     get_fname pcre $nginx_pcre_dl
     tar -xzvf $pcre && rm -f $pcre
     get_fname_from_current_folder pcre
     chown -R root:root $pcre
-    nginx_configure_params="$nginx_configure_params --with-pcre=/usr/src/$pcre"
+    nginx_configure_params="$nginx_configure_params --with-pcre=/usr/src/nginx_build/$pcre"
 
     wget $nginx_openssl_dl
     get_fname openssl $nginx_openssl_dl
     tar -xzvf $openssl && rm -f $openssl
     get_fname_from_current_folder openssl
-    nginx_configure_params="$nginx_configure_params --with-openssl-opt=$nginx_openssl_opts --with-openssl=/usr/src/$openssl"
+    nginx_configure_params="$nginx_configure_params --with-openssl-opt=$nginx_openssl_opts --with-openssl=/usr/src/nginx_build/$openssl"
 
     nginx_configure_params="$nginx_configure_params --prefix=$nginx_prefix --sbin-path=$nginx_sbin_path --conf-path=$nginx_conf_path --pid-path=$nginx_pid_path --error-log-path=$nginx_error_log_path --http-log-path=$nginx_http_log_path --user=$nginx_user --group=$nginx_group $nginx_modules"
 
