@@ -396,6 +396,9 @@ fi
 
 ####################################################################
 # Install oh-my-zsh
+# Note: The default install script will issue the following error:
+#   Password: chsh: PAM: Authentication failure
+# Despite the error the default shell is changed appropriately.
 ####################################################################
 if [[ "$install_zsh" -eq 1 ]]; then
   if ! package_installed? "zsh"; then
