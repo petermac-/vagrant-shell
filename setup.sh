@@ -25,11 +25,7 @@ restart_prompt=1
 # 1 - package not installed
 package_installed?() {
   dpkg -L "$1" > /dev/null 2>&1
-  if [[ "$?" -eq 1 ]]; then
-    return 1
-  else
-    return 0
-  fi
+  return "$?"
 }
 
 ## Return values:
@@ -52,6 +48,37 @@ service_installed?() {
   else
     return 1
   fi
+}
+
+## Searches the current directory for a file based on the passed in name $2
+## Only needed if Nginx URL does not contain the download filename
+## Return values:
+# 3 - filename not found
+# passed in variable name $1 set equal to the first file name found
+get_fname_from_current_folder() {
+  filename=$(find . -maxdepth 1 -type f -name "*$1*")
+  filename=${filename:2}
+
+  if [[ ! -z $filename ]]; then
+    eval "$1=$filename"
+  else
+    echo "Filename not found! Exiting..."
+    exit 3
+  fi
+}
+
+get_fname() {
+  extension="${2##*.}"
+  if [[ "$extension" =~ "zip" ]] || [[ "$extension" =~ "gz" ]]; then
+    eval "$1=$(basename $2)"
+  else
+    get_fname_from_current_folder $1
+  fi
+}
+
+strip_ext() {
+  filename="$1=${2%.*}"
+  eval "$1=$filename"
 }
 
 ####################################################################
@@ -141,33 +168,78 @@ if [[ "$install_nginx" -eq 1 ]]; then
   fi
 
   if ! service_installed? "nginx"; then
-    cd /usr/src
-    # wget --no-check-certificate https://github.com/pagespeed/ngx_pagespeed/archive/master.zip
-    wget --no-check-certificate https://github.com/pagespeed/ngx_pagespeed/archive/v1.7.30.4-beta.zip
-    unzip v1.7.30.4-beta.zip
-    cd ngx_pagespeed-1.7.30.4-beta/
-    # http://modpagespeed.googlecode.com/svn/tags/
-    wget --no-check-certificate https://dl.google.com/dl/page-speed/psol/1.7.30.4.tar.gz
-    tar -xzvf 1.7.30.4.tar.gz && rm -f 1.7.30.4.tar.gz # expands to psol/
-    chown -R root:root psol
+    # Set default vars if not declared
+    nginx_configure_params=""
+    if [[ -z "$nginx_pagespeed_dl" ]]; then
+      nginx_pagespeed_dl="https://api.github.com/repos/pagespeed/ngx_pagespeed/tarball/master"
+    fi
+    if [[ -z "$nginx_psol_dl" ]]; then
+      nginx_psol_dl="https://dl.google.com/dl/page-speed/psol/1.8.31.2.tar.gz"
+    fi
+    if [[ -z "$nginx_zlib_dl" ]]; then
+      nginx_zlib_dl="http://zlib.net/zlib128.zip"
+    fi
+    if [[ -z "$nginx_dl" ]]; then
+      nginx_dl="https://api.github.com/repos/nginx/nginx/tarball/master"
+    fi
+    if [[ -z "$nginx_pcre_dl" ]]; then
+      nginx_pcre_dl="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.35.tar.gz"
+    fi
+    if [[ -z "$nginx_openssl_dl" ]]; then
+      nginx_openssl_dl="ftp://ftp.openssl.org/source/openssl-1.0.1g.tar.gz"
+    fi
 
     cd /usr/src
-    wget http://zlib.net/zlib128.zip
-    unzip zlib128.zip && rm -f zlib128.zip
+    if [[ "$nginx_pagespeed_install" -eq 1 ]]; then
+      wget --no-check-certificate $nginx_pagespeed_dl
+      get_fname pagespeed $nginx_pagespeed_dl
+      tar -xzvf $pagespeed && rm -f $pagespeed
+      mv $pagespeed ngx_pagespeed
 
-    wget --no-check-certificate https://github.com/nginx/nginx/archive/v1.7.0.tar.gz
-    tar -xzvf ./v1.7.0.tar.gz && rm -f v1.7.0.tar.gz
+      cd ngx_pagespeed
+      # http://modpagespeed.googlecode.com/svn/tags/
+      wget --no-check-certificate $nginx_psol_dl
+      get_fname psol $nginx_psol_dl
+      tar -xzvf $psol && rm -f $psol # expands to psol/
+      chown -R root:root psol
+      cd /usr/src
 
-    wget  ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.35.tar.gz
-    tar -xzvf pcre-8.35.tar.gz && rm -f pcre-8.35.tar.gz
+      nginx_configure_params="--add-module=/usr/src/ngx_pagespeed"
+    fi
 
-    chown -R root:root pcre-8.35
-    wget ftp://ftp.openssl.org/source/openssl-1.0.1g.tar.gz
-    tar -xzvf openssl-1.0.1g.tar.gz && rm -f openssl-1.0.1g.tar.gz
+    if [[ "$nginx_fresh_zlib" -eq 1 ]]; then
+      wget $nginx_zlib_dl
+      get_fname zlib $nginx_zlib_dl
+      unzip $zlib && rm -f $zlib
 
-    cd nginx-1.7.0/
+      get_fname_from_current_folder zlib
+      nginx_configure_params="$nginx_configure_params --with-zlib=/usr/src/$zlib"
+    fi
+
+    wget --no-check-certificate $nginx_dl
+    get_fname nginx $nginx_dl
+    tar -xzvf $nginx && rm -f $nginx
+
+    wget $nginx_pcre_dl
+    get_fname pcre $nginx_pcre_dl
+    tar -xzvf $pcre && rm -f $pcre
+    get_fname_from_current_folder pcre
+    chown -R root:root $pcre
+    nginx_configure_params="$nginx_configure_params --with-pcre=/usr/src/$pcre"
+
+    wget $nginx_openssl_dl
+    get_fname openssl $nginx_openssl_dl
+    tar -xzvf $openssl && rm -f $openssl
+    get_fname_from_current_folder openssl
+    nginx_configure_params="$nginx_configure_params --with-openssl-opt=$nginx_openssl_opts --with-openssl=/usr/src/$openssl"
+
+    nginx_configure_params="$nginx_configure_params --prefix=$nginx_prefix --sbin-path=$nginx_sbin_path --conf-path=$nginx_conf_path --pid-path=$nginx_pid_path --error-log-path=$nginx_error_log_path --http-log-path=$nginx_http_log_path --user=$nginx_user --group=$nginx_group $nginx_modules"
+
+    get_fname_from_current_folder nginx
+    cd $nginx
+
     # wget http://nginx.org/patches/patch.spdy-v31.txt && patch -p1 < patch.spdy-v31.txt
-    ./configure --add-module=/usr/src/ngx_pagespeed-1.7.30.4-beta --with-zlib=/usr/src/zlib-1.2.8 --prefix=/var/www/nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --pid-path=/var/run/nginx.pid --error-log-path=/var/www/logs/nginx/error.log --http-log-path=/var/www/logs/nginx/access.log --user=vagrant --group=vagrant --with-pcre=/usr/src/pcre-8.35 --with-openssl-opt=no-krb5 --with-openssl=/usr/src/openssl-1.0.1g --with-http_ssl_module --with-http_spdy_module --with-http_gzip_static_module --with-http_stub_status_module --without-mail_pop3_module --without-mail_smtp_module --without-mail_imap_module
+    ./configure $nginx_configure_params
     make
     make install
     # gem install passenger --no-ri --no-rdoc
