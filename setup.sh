@@ -131,6 +131,15 @@ if [[ "$install_nginx" -eq 1 ]]; then
       chown -R "$php_pool_user":"$php_pool_user" /var/www/logs
     fi
 
+  ####################################################################
+  # Restore MySQL database
+  ####################################################################
+  if [[ ! -z "$db_name" ]]; then
+    if ! mysql -u root -e "use $db_name"; then
+      mysql -u root -p$db_user_pass -h localhost < "$db_dump"
+    fi
+  fi
+
   if ! service_installed? "nginx"; then
     cd /usr/src
     # wget --no-check-certificate https://github.com/pagespeed/ngx_pagespeed/archive/master.zip
@@ -350,7 +359,7 @@ for duser in "${dotfile_users_setup[@]}"; do
     cd .dotfiles
     sudo -u "$duser" -H bash setup/bootstrap
   fi
-  if [ ! -f "/home/$duser/.gitconfig" ] || [ ! -f "/home/$duser/.zshrc" ] || [ ! -f "/home/$duser/.gemrc" ] || [ ! -f "/home/$duser/.gitignore" ]; then
+  if [ ! -e "/home/$duser/.gitconfig" ] || [ ! -e "/home/$duser/.zshrc" ] || [ ! -e "/home/$duser/.gemrc" ] || [ ! -e "/home/$duser/.gitignore" ]; then
     cd "/home/$duser/.dotfiles"
     sudo -u "$duser" -H bash setup/bootstrap
   fi
@@ -359,15 +368,15 @@ done
 ####################################################################
 # Restart Prompt
 ####################################################################
-if [[ "$restart_prompt" -eq 0 ]]; then
-  echo "Updates pending... Restart the server to apply the updates."
-  echo -n "Would you like to restart now? [y/n]: "
-  read ans
-  while [[ "$ans" != "y" ]] && [[ "$ans" != "n" ]]; do
-    echo "Invalid option: enter y to restart now, or n to manually restart later."
-    read ans
-  done
-  if [[ "$ans" == "y" ]]; then
-    reboot
-  fi
-fi
+# if [[ "$restart_prompt" -eq 0 ]]; then
+#   echo "Updates pending... Restart the server to apply the updates."
+#   echo -n "Would you like to restart now? [y/n]: "
+#   read ans
+#   while [[ "$ans" != "y" ]] && [[ "$ans" != "n" ]]; do
+#     echo "Invalid option: enter y to restart now, or n to manually restart later."
+#     read ans
+#   done
+#   if [[ "$ans" == "y" ]]; then
+#     reboot
+#   fi
+# fi
