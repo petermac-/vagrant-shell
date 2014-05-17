@@ -8,24 +8,24 @@ server {
   listen 443;
 
   # listen on the www host
-  server_name www.techexplored.com;
+  server_name www.techlocal.com;
 
   # and redirect to the non-www host (declared below)
   # return 301 $scheme://techexplored.com$request_uri;
-  return 301 http://192.168.50.200$request_uri;
+  return 301 http://techlocal.com$request_uri;
 }
 
 server {
   listen 80;
 
   # listen on the www host
-  server_name 192.168.50.200;
+  server_name techlocal.com;
 
   access_log /var/www/logs/techexplored.com/access.log combined buffer=32k;
   error_log /var/www/logs/techexplored.com/error.log;
 
   # Path for static files
-  root /var/www/techexplored.com/public_html;
+  root /var/www/techexplored.com/public_html/web;
 
   index index.php index.html index.htm;
 
