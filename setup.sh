@@ -135,7 +135,7 @@ if [[ "$install_nginx" -eq 1 ]]; then
   # Restore MySQL database
   ####################################################################
   if [[ ! -z "$db_name" ]]; then
-    if ! mysql -u root -e "use $db_name"; then
+    if ! mysql -u root -p$db_user_pass -e "use $db_name"; then
       mysql -u root -p$db_user_pass -h localhost < "$db_dump"
     fi
   fi
@@ -352,10 +352,9 @@ fi
 for duser in "${dotfile_users_setup[@]}"; do
   if [[ ! -d "/home/$duser/.dotfiles" ]]; then
     cd "/home/$duser"
-    wget --no-check-certificate https://github.com/petermac-/dotfiles/archive/master.zip
-    unzip master.zip && rm -f master.zip
-    mv dotfiles-master .dotfiles
-    chown "$duser" .dotfiles
+    sudo -u "$duser" -H wget --no-check-certificate https://github.com/petermac-/dotfiles/archive/master.zip
+    sudo -u "$duser" -H unzip master.zip && sudo -u "$duser" -H rm -f master.zip
+    sudo -u "$duser" -H mv dotfiles-master .dotfiles
     cd .dotfiles
     sudo -u "$duser" -H bash setup/bootstrap
   fi
