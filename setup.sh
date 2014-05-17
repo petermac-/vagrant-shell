@@ -367,15 +367,6 @@ done
 ####################################################################
 # Restart Prompt
 ####################################################################
-# if [[ "$restart_prompt" -eq 0 ]]; then
-#   echo "Updates pending... Restart the server to apply the updates."
-#   echo -n "Would you like to restart now? [y/n]: "
-#   read ans
-#   while [[ "$ans" != "y" ]] && [[ "$ans" != "n" ]]; do
-#     echo "Invalid option: enter y to restart now, or n to manually restart later."
-#     read ans
-#   done
-#   if [[ "$ans" == "y" ]]; then
-#     reboot
-#   fi
-# fi
+if [[ "$restart_prompt" -eq 0 ]]; then
+  printf "\n\r\033[2K  [ \033[00;32mUpdates pending... Restart the server to apply the updates.\033[0m ]\n"
+fi
