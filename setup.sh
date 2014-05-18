@@ -1,17 +1,54 @@
 #!/bin/bash
 
+# Below are the color init strings for the basic file types. A color init
+# string consists of one or more of the following numeric codes:
+# Attribute codes:
+# 00=none 01=bold 04=underscore 05=blink 07=reverse 08=concealed
+# Text color codes:
+# 30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
+# Background color codes:
+# 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=white
+cyan='\e[1;37;44m'
+red='\e[1;31m'
+dark_red='\e[0;31m'
+green='\e[1;32m'
+dark_green='\e[0;32m'
+blue='\e[1;34m'
+dark_blue='\e[0;34m'
+yellow='\e[1;33m'
+dark_yellow='\e[0;33m'
+endColor='\e[0m'
+
+info() {
+  echo -e "  [$dark_blue .. $endColor] $1 "
+}
+
+user() {
+  echo -e "\r  [$dark_yellow ? $endColor] $1"
+}
+
+success() {
+  echo -e "\r\e   [$dark_green OK $endColor] $1\n"
+}
+
+fail() {
+  txt="FAIL"
+  echo -e "\n\r\e   [$dark_red$txt$endColor] $1\n"
+  exit 1
+}
+
 ####################################################################
 # Vars
 ####################################################################
 if [[ ! -f config ]]; then
-  echo "Error! Rename config.example to config and edit the default values."
+  fail "Error! Rename config.example to config and edit the default values."
   exit 1
 else
   source "config"
 fi
 
 if [[ "$EUID" -ne "0" ]]; then
-  echo "This script must be run as root." >&2
+  fail "This script must be run as root."
   exit 1
 fi
 
@@ -62,7 +99,7 @@ get_fname_from_current_folder() {
   if [[ ! -z $filename ]]; then
     eval "$1=$filename"
   else
-    echo "Filename not found! Exiting..."
+    fail "Filename not found! Exiting..."
     exit 3
   fi
 }
@@ -131,7 +168,7 @@ if [[ "$install_nginx" -eq 1 ]]; then
 
     if ! service_installed? "nginx"; then
       if [ ! -f /etc/php5/fpm/pool.d/www.conf ]; then
-        echo "www.conf file is missing"
+        fail "www.conf file is missing"
         exit 1
       fi
 
@@ -145,7 +182,7 @@ if [[ "$install_nginx" -eq 1 ]]; then
       if hash php5-fpm 2>/dev/null; then
         service php5-fpm restart
       else
-        echo "php5-fpm service not found, exiting..."
+        fail "php5-fpm service not found, exiting..."
         exit 2
       fi
 
@@ -284,7 +321,7 @@ if [[ "$install_nginx" -eq 1 ]]; then
 
     service nginx start
     if ! ps aux | grep "[n]ginx" > /dev/null; then
-      echo "nginx wasn't able to start up!"
+      fail "nginx wasn't able to start up!"
       exit 2
     fi
   else
@@ -360,7 +397,7 @@ if [[ "$protect_su" -eq 1 ]] && [[ ! -z "$protect_su" ]]; then
       if groups "$user" | grep "\b$group\b"; then
         echo "$user has been successfully added to group $group"
       else
-        echo "failed to add $user to group $group"
+        fail "failed to add $user to group $group"
         exit 1
       fi
     fi
