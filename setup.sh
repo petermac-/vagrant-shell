@@ -1,54 +1,25 @@
 #!/bin/bash
 
-# Below are the color init strings for the basic file types. A color init
-# string consists of one or more of the following numeric codes:
-# Attribute codes:
-# 00=none 01=bold 04=underscore 05=blink 07=reverse 08=concealed
-# Text color codes:
-# 30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
-# Background color codes:
-# 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=white
-cyan='\e[1;37;44m'
-red='\e[1;31m'
-dark_red='\e[0;31m'
-green='\e[1;32m'
-dark_green='\e[0;32m'
-blue='\e[1;34m'
-dark_blue='\e[0;34m'
-yellow='\e[1;33m'
-dark_yellow='\e[0;33m'
-endColor='\e[0m'
+VAGRANT_ROOT=$(pwd)
 
-info() {
-  echo -e "  [$dark_blue .. $endColor] $1 "
-}
-
-user() {
-  echo -e "\r  [$dark_yellow ? $endColor] $1"
-}
-
-success() {
-  echo -e "\r\e   [$dark_green OK $endColor] $1\n"
-}
-
-fail() {
-  txt="FAIL"
-  echo -e "\n\r\e   [$dark_red$txt$endColor] $1\n"
-  exit 1
-}
+if ! command -v pprint >/dev/null 2>&1; then
+  export PATH=$PATH:$VAGRANT_ROOT/bin
+fi
 
 ####################################################################
 # Vars
 ####################################################################
 if [[ ! -f config ]]; then
-  fail "Error! Rename config.example to config and edit the default values."
+  pprint fail -r "Error! Rename config.example to config and edit the default values."
+  pprint flush
   exit 1
 else
   source "config"
 fi
 
 if [[ "$EUID" -ne "0" ]]; then
-  fail "This script must be run as root."
+  pprint fail -r "This script must be run as root."
+  pprint flush
   exit 1
 fi
 
@@ -99,7 +70,8 @@ get_fname_from_current_folder() {
   if [[ ! -z $filename ]]; then
     eval "$1=$filename"
   else
-    fail "Filename not found! Exiting..."
+    pprint fail -r "Filename not found! Exiting..."
+    pprint flush
     exit 3
   fi
 }
@@ -168,7 +140,8 @@ if [[ "$install_nginx" -eq 1 ]]; then
 
     if ! service_installed? "nginx"; then
       if [ ! -f /etc/php5/fpm/pool.d/www.conf ]; then
-        fail "www.conf file is missing"
+        pprint fail -r "www.conf file is missing"
+        pprint flush
         exit 1
       fi
 
@@ -182,7 +155,8 @@ if [[ "$install_nginx" -eq 1 ]]; then
       if hash php5-fpm 2>/dev/null; then
         service php5-fpm restart
       else
-        fail "php5-fpm service not found, exiting..."
+        pprint fail -r "php5-fpm service not found, exiting..."
+        pprint flush
         exit 2
       fi
 
@@ -207,24 +181,12 @@ if [[ "$install_nginx" -eq 1 ]]; then
   if ! service_installed? "nginx"; then
     # Set default vars if not declared
     nginx_configure_params=""
-    if [[ -z "$nginx_pagespeed_dl" ]]; then
-      nginx_pagespeed_dl="https://api.github.com/repos/pagespeed/ngx_pagespeed/tarball/master"
-    fi
-    if [[ -z "$nginx_psol_dl" ]]; then
-      nginx_psol_dl="https://dl.google.com/dl/page-speed/psol/1.8.31.2.tar.gz"
-    fi
-    if [[ -z "$nginx_zlib_dl" ]]; then
-      nginx_zlib_dl="http://zlib.net/zlib128.zip"
-    fi
-    if [[ -z "$nginx_dl" ]]; then
-      nginx_dl="https://api.github.com/repos/nginx/nginx/tarball/master"
-    fi
-    if [[ -z "$nginx_pcre_dl" ]]; then
-      nginx_pcre_dl="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.35.tar.gz"
-    fi
-    if [[ -z "$nginx_openssl_dl" ]]; then
-      nginx_openssl_dl="ftp://ftp.openssl.org/source/openssl-1.0.1g.tar.gz"
-    fi
+    nginx_pagespeed_dl=${nginx_pagespeed_dl:-https://api.github.com/repos/pagespeed/ngx_pagespeed/tarball/master}
+    nginx_psol_dl=${nginx_psol_dl:-https://dl.google.com/dl/page-speed/psol/1.8.31.2.tar.gz}
+    nginx_zlib_dl=${nginx_zlib_dl:-http://zlib.net/zlib128.zip}
+    nginx_dl=${nginx_dl:-https://api.github.com/repos/nginx/nginx/tarball/master}
+    nginx_pcre_dl=${nginx_pcre_dl:-ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.35.tar.gz}
+    nginx_openssl_dl=${nginx_openssl_dl:-ftp://ftp.openssl.org/source/openssl-1.0.1g.tar.gz}
 
     cd /usr/src
     mkdir "nginx_build"
@@ -321,7 +283,8 @@ if [[ "$install_nginx" -eq 1 ]]; then
 
     service nginx start
     if ! ps aux | grep "[n]ginx" > /dev/null; then
-      fail "nginx wasn't able to start up!"
+      pprint fail -r "nginx wasn't able to start up!"
+      pprint flush
       exit 2
     fi
   else
@@ -397,7 +360,8 @@ if [[ "$protect_su" -eq 1 ]] && [[ ! -z "$protect_su" ]]; then
       if groups "$user" | grep "\b$group\b"; then
         echo "$user has been successfully added to group $group"
       else
-        fail "failed to add $user to group $group"
+        pprint fail -r "failed to add $user to group $group"
+        pprint flush
         exit 1
       fi
     fi
