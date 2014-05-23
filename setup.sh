@@ -432,6 +432,7 @@ for duser in "${dotfile_users_setup[@]}"; do
     sudo -u "$duser" -H wget --no-check-certificate https://github.com/petermac-/dotfiles/archive/master.zip
     sudo -u "$duser" -H unzip master.zip && sudo -u "$duser" -H rm -f master.zip
     sudo -u "$duser" -H mv dotfiles-master .dotfiles
+    sudo -u "$duser" -H find . -maxdepth 1 -type f | xargs chmod 770
     cd .dotfiles
     sudo -u "$duser" -H bash setup/bootstrap
   fi
@@ -445,5 +446,5 @@ done
 # Restart Prompt
 ####################################################################
 if [[ "$restart_prompt" -eq 0 ]]; then
-  printf "\n\r\033[2K  [ \033[00;32mUpdates pending... Restart the server to apply the updates.\033[0m ]\n"
+  pprint success -r "Updates pending... Restart the server to apply the updates.\n"
 fi
