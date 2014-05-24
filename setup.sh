@@ -2,24 +2,25 @@
 
 VAGRANT_ROOT=$(pwd)
 
-if ! command -v pprint >/dev/null 2>&1; then
-  export PATH=$PATH:$VAGRANT_ROOT/bin
+if [[ -f "$VAGRANT_ROOT/bin/pprint" ]]; then
+  source "$VAGRANT_ROOT/bin/pprint"
+else
+  echo "Missing bin/pprint! Exiting..."
+  exit 1
 fi
 
 ####################################################################
 # Vars
 ####################################################################
 if [[ ! -f config ]]; then
-  pprint fail -r "Error! Rename config.example to config and edit the default values."
-  pprint flush
+  eerror "Error! Rename config.example to config and edit the default values."
   exit 1
 else
   source "config"
 fi
 
 if [[ "$EUID" -ne "0" ]]; then
-  pprint fail -r "This script must be run as root."
-  pprint flush
+  eerror "This script must be run as root."
   exit 1
 fi
 
@@ -70,8 +71,7 @@ get_fname_from_current_folder() {
   if [[ ! -z $filename ]]; then
     eval "$1=$filename"
   else
-    pprint fail -r "Filename not found! Exiting..."
-    pprint flush
+    eerror "Filename not found! Exiting..."
     exit 3
   fi
 }
@@ -140,8 +140,7 @@ if [[ "$install_nginx" -eq 1 ]]; then
 
     if ! service_installed? "nginx"; then
       if [ ! -f /etc/php5/fpm/pool.d/www.conf ]; then
-        pprint fail -r "www.conf file is missing"
-        pprint flush
+        eerror "www.conf file is missing"
         exit 1
       fi
 
@@ -155,8 +154,7 @@ if [[ "$install_nginx" -eq 1 ]]; then
       if hash php5-fpm 2>/dev/null; then
         service php5-fpm restart
       else
-        pprint fail -r "php5-fpm service not found, exiting..."
-        pprint flush
+        eerror "php5-fpm service not found, exiting..."
         exit 2
       fi
 
@@ -283,8 +281,7 @@ if [[ "$install_nginx" -eq 1 ]]; then
 
     service nginx start
     if ! ps aux | grep "[n]ginx" > /dev/null; then
-      pprint fail -r "nginx wasn't able to start up!"
-      pprint flush
+      eerror "nginx wasn't able to start up!"
       exit 2
     fi
   else
@@ -360,8 +357,7 @@ if [[ "$protect_su" -eq 1 ]] && [[ ! -z "$protect_su" ]]; then
       if groups "$user" | grep "\b$group\b"; then
         echo "$user has been successfully added to group $group"
       else
-        pprint fail -r "failed to add $user to group $group"
-        pprint flush
+        eerror "failed to add $user to group $group"
         exit 1
       fi
     fi
@@ -447,6 +443,5 @@ done
 # Restart Prompt
 ####################################################################
 if [[ "$restart_prompt" -eq 0 ]]; then
-  pprint flush
-  pprint success "Updates pending... Restart the server to apply the updates.\n"
+  esuccess "Updates pending... Restart the server to apply the updates.\n"
 fi
