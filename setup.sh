@@ -78,7 +78,7 @@ get_fname_from_current_folder() {
 
 get_fname() {
   extension="${2##*.}"
-  if [[ "$extension" =~ "zip" ]] || [[ "$extension" =~ "gz" ]]; then
+  if [[ "$extension" =~ "zip" ]] || [[ "$extension" =~ "gz" ]] || [[ "$extension" =~ "bz2" ]]; then
     eval "$1=$(basename $2)"
   else
     get_fname_from_current_folder $1
@@ -183,7 +183,7 @@ if [[ "$install_nginx" -eq 1 ]]; then
     nginx_psol_dl=${nginx_psol_dl:-https://dl.google.com/dl/page-speed/psol/1.8.31.2.tar.gz}
     nginx_zlib_dl=${nginx_zlib_dl:-http://zlib.net/zlib128.zip}
     nginx_dl=${nginx_dl:-https://api.github.com/repos/nginx/nginx/tarball/master}
-    nginx_pcre_dl=${nginx_pcre_dl:-ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.35.tar.gz}
+    nginx_pcre_dl=${nginx_pcre_dl:-http://downloads.sourceforge.net/pcre/pcre-8.35.tar.bz2}
     nginx_openssl_dl=${nginx_openssl_dl:-ftp://ftp.openssl.org/source/openssl-1.0.1g.tar.gz}
 
     cd /usr/src
@@ -218,12 +218,17 @@ if [[ "$install_nginx" -eq 1 ]]; then
     get_fname_from_current_folder master
     tar -xzvf $master && rm -f $master
 
-    wget $nginx_pcre_dl
-    get_fname pcre $nginx_pcre_dl
-    tar -xzvf $pcre && rm -f $pcre
-    get_fname_from_current_folder pcre
-    chown -R root:root $pcre
-    nginx_configure_params="$nginx_configure_params --with-pcre=/usr/src/nginx_build/$pcre"
+    curl -s --head $nginx_pcre_dl | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null
+    # on success (page exists), $? will be 0; on failure (page does not exist or
+    # is unreachable), $? will be 1
+    if [[ "$?" -eq 0 ]]; then
+      wget $nginx_pcre_dl
+      get_fname pcre $nginx_pcre_dl
+      tar -jxvf $pcre && rm -f $pcre
+      get_fname_from_current_folder pcre
+      chown -R root:root $pcre
+      nginx_configure_params="$nginx_configure_params --with-pcre=/usr/src/nginx_build/$pcre"
+    fi
 
     wget $nginx_openssl_dl
     get_fname openssl $nginx_openssl_dl
