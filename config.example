@@ -57,7 +57,7 @@ nginx_pagespeed_dl="https://api.github.com/repos/pagespeed/ngx_pagespeed/tarball
 nginx_psol_dl="https://dl.google.com/dl/page-speed/psol/1.8.31.2.tar.gz"
 nginx_zlib_dl="http://zlib.net/zlib128.zip"
 nginx_dl="https://api.github.com/repos/nginx/nginx/tarball/master"
-nginx_pcre_dl="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.35.tar.gz"
+nginx_pcre_dl="http://downloads.sourceforge.net/pcre/pcre-8.35.tar.bz2"
 nginx_openssl_dl="ftp://ftp.openssl.org/source/openssl-1.0.1g.tar.gz"
 
 ####################################################################
