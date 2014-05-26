@@ -1,6 +1,7 @@
 #!/bin/bash
 
 VAGRANT_ROOT=$(pwd)
+OS=$('uname')
 
 if [[ -f "$VAGRANT_ROOT/bin/pprint" ]]; then
   source "$VAGRANT_ROOT/bin/pprint"
@@ -350,7 +351,7 @@ fi
 ####################################################################
 # Protect su
 ####################################################################
-if [[ "$protect_su" -eq 1 ]] && [[ ! -z "$protect_su" ]]; then
+if [[ "$protect_su" -eq 1 ]] && [ -z "$(dpkg-statoverride --list /bin/su)" ]; then
   if [[ $(ls -l /bin/su | awk '{ print $4 }') != "adm" ]]; then
     group=adm
     if groups "$user" | grep "\b$group\b"; then
@@ -443,6 +444,22 @@ for duser in "${dotfile_users_setup[@]}"; do
     sudo -u "$duser" -H bash setup/bootstrap
   fi
 done
+
+####################################################################
+# Ruby Setup
+# OSX will use Homebrew to setup Ruby
+####################################################################
+if [ "$OS" != "Darwin" ] && ! service_installed? "rbenv"; then
+  git clone https://github.com/sstephenson/rbenv.git ~/.rbenv
+  echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/$DOTFILES_ROOT/system/path.zsh
+  echo 'eval "$(rbenv init -)"' >> ~/$DOTFILES_ROOT/system/path.zsh
+  git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+  echo 'export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"' >> ~/$DOTFILES_ROOT/system/path.zsh
+  exec $SHELL
+
+  rbenv install 2.1.2
+  rbenv global 2.1.2
+fi
 
 ####################################################################
 # Restart Prompt
