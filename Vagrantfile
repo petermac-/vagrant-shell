@@ -5,6 +5,11 @@ guestip  = '192.168.50.200'
 Vagrant.configure("2") do |config|
 
   config.ssh.forward_agent = true
+  # resolve "stdin: is not a tty warning", related issue and proposed fix:
+  #     https://github.com/mitchellh/vagrant/issues/1673
+  #     https://github.com/mitchellh/vagrant/issues/1673#issuecomment-28287711
+  #     https://github.com/mitchellh/vagrant/issues/1673#issuecomment-28288042
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
   config.vm.define "devbox" do |devbox|
 
     devbox.hostmanager.enabled = true
