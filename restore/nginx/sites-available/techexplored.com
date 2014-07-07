@@ -2,24 +2,24 @@
 # https://github.com/h5bp/html5-boilerplate/blob/5370479476dceae7cc3ea105946536d6bc0ee468/.htaccess#L362
 # Choose between www and non-www, listen on the *wrong* one and redirect to
 # the right one -- http://wiki.nginx.org/Pitfalls#Server_Name
+# server {
+#   # don't forget to tell on which port this server listens
+#   listen 80;
+#   listen 443;
+
+#   # listen on the www host
+#   server_name www.techxlocal.com;
+
+#   # and redirect to the non-www host (declared below)
+#   # return 301 $scheme://techexplored.com$request_uri;
+#   return 301 http://techxlocal.com$request_uri;
+# }
+
 server {
-  # don't forget to tell on which port this server listens
   listen 80;
-  listen 443;
 
   # listen on the www host
-  server_name www.techlocal.com;
-
-  # and redirect to the non-www host (declared below)
-  # return 301 $scheme://techexplored.com$request_uri;
-  return 301 http://techlocal.com$request_uri;
-}
-
-server {
-  listen 80;
-
-  # listen on the www host
-  server_name techlocal.com;
+  server_name techxlocal.com;
 
   access_log /var/www/logs/techexplored.com/access.log combined buffer=32k;
   error_log /var/www/logs/techexplored.com/error.log;
@@ -73,6 +73,6 @@ server {
   }
 
   # Include the basic h5bp config set
-  include h5bp/basic.conf;
+  # include h5bp/basic.conf;
 
 }
